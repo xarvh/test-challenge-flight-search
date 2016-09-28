@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "server": "node server/main.js"
+  },
+  "dependencies": {
+    "async": "^2.0.1",
+    "express": "^4.14.0",
+    "lodash": "^4.16.2",
+    "request": "^2.75.0"
+  }
+}
