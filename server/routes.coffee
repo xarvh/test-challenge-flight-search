@@ -1,73 +1,79 @@
 _ = require 'lodash'
+assert = require 'assert'
 async = require 'async'
 request = require 'request'
 {resolve} = require 'url'
 
-config = require './config'
+
+
+module.exports = ({log, config}) ->
+    assert log
+    assert config
 
 
 
-
-log = console
-
-
-
-
-apiUrl = (apiEndpoint) ->
-    return resolve (config 'flightApiUrl'), apiEndpoint
+    apiUrl = (apiEndpoint) ->
+        return resolve (config 'flightApiUrl'), apiEndpoint
 
 
 
-requestJson = (url) -> (cb) ->
-    async.waterfall [
+    requestJson = (url) -> (cb) ->
+        async.waterfall [
 
-        (cb) ->
-            log.info "GET #{url}..."
-            request.get url, cb
-    ,
+            (cb) ->
+                log.info "GET #{url}..."
+                request.get url, cb
+        ,
 
-        (response, body, cb) ->
-            if response.statusCode >= 400
-                err = body
-                log.error "GET #{url} #{response.statusCode}: #{err}"
-            else
-                log.info "GET #{url} #{response.statusCode}"
+            (response, body, cb) ->
+                if response.statusCode >= 400
+                    err = body
+                    log.error "GET #{url} #{response.statusCode}: #{err}"
+                else
+                    log.info "GET #{url} #{response.statusCode}"
 
-            cb err, body
-    ,
+                cb err, body
+        ,
 
-        (body, cb) ->
-            result = try JSON.parse body catch err
-            cb err, result
-    ], cb
-
-
-
-module.exports.simpleRequest = (apiEndpoint) -> (req, res, next) ->
-    request
-        .get apiUrl apiEndpoint
-        .pipe res
+            (body, cb) ->
+                result = try JSON.parse body catch err
+                cb err, result
+        ], cb
 
 
 
-module.exports.search = (req, res, next) ->
+    simpleRequest = (apiEndpoint) -> (req, res, next) ->
+        request
+            .get apiUrl apiEndpoint
+            .pipe res
 
-    apiQueryLimit = config 'flightApiQueryLimit'
 
-    query = 'date=2016-09-30&from=SYD&to=JFK'
 
-    async.waterfall [
+    search = (req, res, next) ->
 
-        requestJson apiUrl 'airlines'
-    ,
+        apiQueryLimit = config 'flightApiQueryLimit'
 
-        (airlines, cb) ->
-            async.mapLimit airlines, apiQueryLimit, (airline, cb) ->
-                (requestJson apiUrl "flight_search/#{airline.code}?#{query}")(cb)
-            , cb
-    ,
+        # TODO actually get query
+        query = 'date=2016-09-30&from=SYD&to=JFK'
 
-        (allSearchResults, cb) ->
-            res.send allSearchResults
+        async.waterfall [
 
-    ], next
+            requestJson apiUrl 'airlines'
+        ,
+
+            (airlines, cb) ->
+                async.mapLimit airlines, apiQueryLimit, (airline, cb) ->
+                    (requestJson apiUrl "flight_search/#{airline.code}?#{query}")(cb)
+                , cb
+        ,
+
+            (allSearchResults, cb) ->
+                res.send allSearchResults
+
+        ], next
+
+
+    return {
+        simpleRequest
+        search
+    }
