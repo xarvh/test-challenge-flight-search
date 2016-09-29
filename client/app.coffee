@@ -94,13 +94,21 @@ getFormData = ->
 
 
 initSearchResults = (offset, date) ->
-    # TODO: add search result elements
-    console.log 'init', offset, date
+    $("li.offset-#{offset} a")
+        .text(date)
+        .click ->
+            selectNav offset
+
+    $('.results-container')
+        .show()
+
+#    $(".results, offset-#{offset}")
 
 
-displaySearchResult = (offset, date, results) ->
-    # TODO display search results
-    console.log 'res', offset, results
+#displaySearchResult = (offset, date, results) ->
+#    # TODO display search results
+#    console.log 'res', offset, results
+
 
 
 runSearch = ->
@@ -119,6 +127,50 @@ runSearch = ->
             error: ajaxError flashError
             success: (results) ->
                 displaySearchResult offset, date, results
+
+
+
+#
+# Search Results
+#
+selectNav = (offset) ->
+    $(".results-container .nav-pill").removeClass('active')
+    $(".results-container .offset-#{offset}").addClass('active')
+
+    $(".results").hide()
+    $(".results.offset-#{offset}").show()
+
+
+
+displaySearchResult = (offset, date, results) ->
+
+    flightToHtml = (flight) ->
+        """
+        <li>
+            <div>#{flight.airline.name}</div>
+            <div>#{flight.durationMin}</div>
+            <div>#{flight.airline.code} #{flight.flightNum}</div>
+            <div>$#{flight.price}</div>
+            <div>#{flight.start.dateTime} #{flight.start.timeZone}</div>
+            <div>#{flight.finish.dateTime} #{flight.finish.timeZone}</div>
+        </li>
+        """
+
+    html =
+        _(results)
+            .sortBy('price')
+            .take(10)
+            .map(flightToHtml)
+            .join('\n')
+
+    console.log('adding', html)
+
+    $(".results.offset-#{offset}").append(html)
+
+
+
+
+
 
 
 
