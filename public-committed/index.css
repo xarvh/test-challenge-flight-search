@@ -1,4 +1,8 @@
 
+.results-container {
+    margin-top: 3em;
+}
+
 .spinner {
     background-image: url('/static/images/spinner.gif');
     width: 192px;

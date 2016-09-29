@@ -139,14 +139,14 @@ displaySearchResult = (offset, date, results) ->
 
     flightToHtml = (flight) ->
         """
-        <li>
-            <div>#{flight.airline.name}</div>
-            <div>#{flight.durationMin}</div>
-            <div>#{flight.airline.code} #{flight.flightNum}</div>
-            <div>$#{flight.price}</div>
-            <div>#{flight.start.dateTime} #{flight.start.timeZone}</div>
-            <div>#{flight.finish.dateTime} #{flight.finish.timeZone}</div>
-        </li>
+        <tr>
+            <td>#{flight.airline.name}</td>
+            <td>#{moment.duration(flight.durationMin, 'minutes').humanize()}</td>
+            <td>#{flight.airline.code} #{flight.flightNum}</td>
+            <td>$#{flight.price}</td>
+            <td>#{flight.start.dateTime} #{flight.start.timeZone}</td>
+            <td>#{flight.finish.dateTime} #{flight.finish.timeZone}</td>
+        </tr>
         """
 
     listItems =
@@ -157,7 +157,21 @@ displaySearchResult = (offset, date, results) ->
             .join('\n')
 
     $(".results.offset-#{offset}")
-        .html "<ul>#{listItems}</ul>"
+        .html """
+            <table class='table'>
+                <thead>
+                    <tr>
+                        <th>Airline</th>
+                        <th>Duration</th>
+                        <th>Flight</th>
+                        <th>Price</th>
+                        <th>Departure</th>
+                        <th>Arrival</th>
+                    </tr>
+                </thead>
+                #{listItems}
+            </table>"
+            """
 
 
 
