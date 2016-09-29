@@ -72,9 +72,7 @@ module.exports = ({log, config}) ->
         ,
 
             (allSearchResults, cb) ->
-#                fs = require 'fs'
-#                fs.writeFileSync (apiUrl "flight_search/", req.query).replace(/[/:?&=]/g, '_'), (JSON.stringify allSearchResults)
-                res.send allSearchResults
+                res.send [].concat allSearchResults...
 
         ], next
 
