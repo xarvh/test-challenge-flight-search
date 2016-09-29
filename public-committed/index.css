@@ -1,0 +1,6 @@
+
+.spinner {
+    background-image: url('/static/images/spinner.gif');
+    width: 192px;
+    height: 192px;
+}

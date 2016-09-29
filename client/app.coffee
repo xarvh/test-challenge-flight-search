@@ -93,24 +93,6 @@ getFormData = ->
 
 
 
-initSearchResults = (offset, date) ->
-    $("li.offset-#{offset} a")
-        .text(date)
-        .click ->
-            selectNav offset
-
-    $('.results-container')
-        .show()
-
-#    $(".results, offset-#{offset}")
-
-
-#displaySearchResult = (offset, date, results) ->
-#    # TODO display search results
-#    console.log 'res', offset, results
-
-
-
 runSearch = ->
     {from, to, date, error} = getFormData()
     if error
@@ -133,6 +115,17 @@ runSearch = ->
 #
 # Search Results
 #
+initSearchResults = (offset, date) ->
+    $("li.offset-#{offset} a")
+        .text(date)
+        .click ->
+            selectNav offset
+
+    $('.results-container')
+        .show()
+
+
+
 selectNav = (offset) ->
     $(".results-container .nav-pill").removeClass('active')
     $(".results-container .offset-#{offset}").addClass('active')
@@ -156,21 +149,15 @@ displaySearchResult = (offset, date, results) ->
         </li>
         """
 
-    html =
+    listItems =
         _(results)
             .sortBy('price')
             .take(10)
             .map(flightToHtml)
             .join('\n')
 
-    console.log('adding', html)
-
-    $(".results.offset-#{offset}").append(html)
-
-
-
-
-
+    $(".results.offset-#{offset}")
+        .html "<ul>#{listItems}</ul>"
 
 
 
