@@ -12,8 +12,10 @@ module.exports = ({log, config}) ->
 
 
 
-    apiUrl = (apiEndpoint) ->
-        return resolve (config 'flightApiUrl'), apiEndpoint
+    apiUrl = (apiEndpoint, queryHash) ->
+        base = resolve (config 'flightApiUrl'), apiEndpoint
+        query = if queryHash then '?' + _.map(queryHash, (v, k) -> "#{k}=#{v}").join '&' else ''
+        return base + query
 
 
 
@@ -43,18 +45,20 @@ module.exports = ({log, config}) ->
 
 
     simpleRequest = (apiEndpoint) -> (req, res, next) ->
-        request
-            .get apiUrl apiEndpoint
-            .pipe res
+        async.waterfall [
+
+            requestJson apiUrl apiEndpoint, req.query
+        ,
+            (result, cb) ->
+                res.send result
+
+        ], next
 
 
 
     search = (req, res, next) ->
 
         apiQueryLimit = config 'flightApiQueryLimit'
-
-        # TODO actually get query
-        query = 'date=2016-09-30&from=SYD&to=JFK'
 
         async.waterfall [
 
@@ -63,7 +67,7 @@ module.exports = ({log, config}) ->
 
             (airlines, cb) ->
                 async.mapLimit airlines, apiQueryLimit, (airline, cb) ->
-                    (requestJson apiUrl "flight_search/#{airline.code}?#{query}")(cb)
+                    (requestJson apiUrl "flight_search/#{airline.code}", req.query)(cb)
                 , cb
         ,
 
