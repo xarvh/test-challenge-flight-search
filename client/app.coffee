@@ -1,15 +1,38 @@
-
-airportQueryCache = {}
+#
+# Helpers
+#
+flashError = (errorMessage) ->
+    console.error '[error]', errorMessage
 
 
 
 ajaxError = (cb) ->
     return (xmlHttpRequest, textStatus, exception) ->
         console.error textStatus, exception, xmlHttpRequest
-        if cb then cb()
+        if cb then cb textStatus
 
 
 
+#
+# Airports
+#
+airportQueryCache = {}
+
+
+getAllCachedAirports = ->
+    list = []
+    for k, v of airportQueryCache
+        list.push v...
+    return list
+
+airportToDisplayString = (a) ->
+    "#{a.airportCode} #{a.airportName} (#{a.cityName}, #{a.countryName})"
+
+
+
+#
+# Airport selection
+#
 makeAirportInput = (selector) ->
 
 
@@ -18,8 +41,7 @@ makeAirportInput = (selector) ->
             .filter (a) ->
                 ['airportCode', 'airportName', 'cityCode', 'cityName'].some (attr) ->
                     a[attr].match new RegExp "^#{searchTerm}", 'i'
-            .map (a) ->
-                "#{a.airportCode} #{a.airportName} (#{a.cityName}, #{a.countryName})"
+            .map airportToDisplayString
 
 
     source = ({term}, response) ->
@@ -29,9 +51,8 @@ makeAirportInput = (selector) ->
         if cache
             return response conform cache, term
 
-        $.ajax
+        $.getJSON
             url: "/airports?q=#{queryTerm}"
-            dataType: 'json'
             error: ajaxError -> response []
             success: (data) ->
                 airportQueryCache[queryTerm] = data
@@ -45,17 +66,76 @@ makeAirportInput = (selector) ->
 
 
 
+#
+# Search
+#
+getFormData = ->
+
+    allAirports = getAllCachedAirports()
+    airportCodeByDisplayName = _(allAirports).keyBy(airportToDisplayString).mapValues('airportCode').value()
 
 
+    from = airportCodeByDisplayName[$('#from').val()]
+    if not from
+        return error: "Origin field should contain a valid airport"
+
+
+    to = airportCodeByDisplayName[$('#to').val()]
+    if not to
+        return error: "Destination field should contain a valid airport"
+
+
+    date = $('#departure-date').val()
+    if not date
+        return error: "Please specify departure date"
+
+    return { from, to, date }
+
+
+
+initSearchResults = (offset, date) ->
+    # TODO: add search result elements
+    console.log 'init', offset, date
+
+
+displaySearchResult = (offset, date, results) ->
+    # TODO display search results
+    console.log 'res', offset, results
+
+
+runSearch = ->
+    {from, to, date, error} = getFormData()
+    if error
+        return flashError error
+
+    dateRangeStart = moment(date, 'YY-MM-DD').subtract(2, 'days')
+    if dateRangeStart < moment() then dateRangeStart = moment()
+
+    [0...5].forEach (offset) ->
+        date = dateRangeStart.clone().add(offset, 'days').format('YYYY-MM-DD')
+        initSearchResults offset, date
+        $.getJSON
+            url: "/search?#{$.param {from, to, date}}"
+            error: ajaxError flashError
+            success: (results) ->
+                displaySearchResult offset, date, results
+
+
+
+#
+# Main
+#
 $ ->
-    $('#departure-date').datepicker()
     makeAirportInput '#from'
     makeAirportInput '#to'
 
+    $('#departure-date')
+        .val moment().add(2, 'days').format('YY-MM-DD')
+        .datepicker
+            dateFormat: 'y-mm-dd'
+            minDate: 0
+            defaultDate: 1
 
-
-
-
-
-
-
+    $('#search').click (event) ->
+        event.preventDefault()
+        runSearch()
