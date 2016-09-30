@@ -98,6 +98,14 @@ runSearch = ->
     if error
         return flashError error
 
+
+    $('.results-container')
+        .show()
+
+    $('.results-container .results')
+        .html "<div class='spinner'></div>"
+
+
     dateRangeStart = moment(date, 'YY-MM-DD').subtract(2, 'days')
     if dateRangeStart < moment() then dateRangeStart = moment()
 
@@ -121,8 +129,6 @@ initSearchResults = (offset, date) ->
         .click ->
             selectNav offset
 
-    $('.results-container')
-        .show()
 
 
 
@@ -170,7 +176,7 @@ displaySearchResult = (offset, date, results) ->
                     </tr>
                 </thead>
                 #{listItems}
-            </table>"
+            </table>
             """
 
 
