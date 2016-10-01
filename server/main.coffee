@@ -6,11 +6,11 @@ routesFactory = require './routes'
 
 
 
-module.exports = main = ->
+module.exports = main = (log) ->
 
     app = express()
 
-    routes = routesFactory {config, log: console}
+    routes = routesFactory {config, log}
     app.get '/airlines', routes.simpleRequest 'airlines'
     app.get '/airports', routes.simpleRequest 'airports'
     app.get '/search', routes.search
@@ -21,15 +21,15 @@ module.exports = main = ->
     app.use '/static', express.static 'public-generated'
     app.use '/static', express.static 'public-committed'
 
-
     # TODO: add error middleware
 
-
-    port = config 'serverPort'
-    app.listen port, () ->
-      console.info "Listening on port #{port}."
+    return app
 
 
 
 if require.main == module
-    main()
+    app = main console
+
+    port = config 'serverPort'
+    app.listen port, () ->
+      console.info "Listening on port #{port}."

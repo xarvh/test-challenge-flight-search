@@ -14,8 +14,8 @@ module.exports = ({log, config}) ->
 
     apiUrl = (apiEndpoint, queryHash) ->
         base = resolve (config 'flightApiUrl'), apiEndpoint
-        query = if queryHash then '?' + _.map(queryHash, (v, k) -> "#{k}=#{v}").join '&' else ''
-        return base + query
+        queryParameters = _.map(queryHash, (v, k) -> "#{k}=#{v}").join '&'
+        return base + if queryParameters then '?' + queryParameters else ''
 
 
 

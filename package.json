@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "server": "coffee server/main.coffee",
+    "test": "mocha --compilers coffee:independence/bin/coffee-wrap test/server/",
+    "start": "coffee server/main.coffee",
     "build": "webpack"
   },
   "dependencies": {
@@ -11,5 +12,10 @@
     "lodash": "^4.16.2",
     "request": "^2.75.0",
     "webpack": "^1.13.2"
+  },
+  "devDependencies": {
+    "independence": "^0.6.4",
+    "mocha": "^3.1.0",
+    "supertest": "^2.0.0"
   }
 }

@@ -1,3 +1,4 @@
+_ = require 'lodash'
 assert = require 'assert'
 
 
@@ -14,3 +15,10 @@ module.exports = (id) ->
     assert cfg[id]
 
     return cfg[id]
+
+
+
+module.exports.set = (key, value) ->
+    assert cfg[key]
+    assert value
+    cfg[key] = value
