@@ -1,3 +1,3 @@
 #!/bin/sh
 cd $(dirname $0)
-npm install && npm run build && npm run server
+npm install && npm run build && npm start

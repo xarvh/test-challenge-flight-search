@@ -21,7 +21,9 @@ module.exports = main = (log) ->
     app.use '/static', express.static 'public-generated'
     app.use '/static', express.static 'public-committed'
 
-    # TODO: add error middleware
+    app.use (err, req, res, next) ->
+        log.error err.stack
+        res.status(500).send(err.message)
 
     return app
 

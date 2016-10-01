@@ -28,11 +28,11 @@ module.exports = ({log, config}) ->
         ,
 
             (response, body, cb) ->
-                if response.statusCode >= 400
-                    err = body
-                    log.error "GET #{url} #{response.statusCode}: #{err}"
-                else
+                if response.statusCode < 400
                     log.info "GET #{url} #{response.statusCode}"
+                else
+                    log.error "GET #{url} #{response.statusCode}: #{body}"
+                    err = new Error body
 
                 cb err, body
         ,
